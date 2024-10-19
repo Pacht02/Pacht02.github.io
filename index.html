@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nuevo Producto 3D</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 60px;  /* Separación para el título */
+      font-size: 2rem;
+    }
+
+    .button {
+      width: 180px;
+      height: 40px;
+      background-image: linear-gradient(rgb(214, 202, 254), rgb(158, 129, 254));
+      border: none;
+      border-radius: 50px;
+      color: rgb(255, 255, 255);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      cursor: pointer;
+      box-shadow: 1px 3px 0px rgb(139, 113, 255);
+      transition-duration: .3s;
+      margin-top: 70px; /* Agregado para dar espacio bajo el texto */
+    }
+
+    .cartIcon {
+      width: 14px;
+      height: fit-content;
+    }
+
+    .cartIcon path {
+      fill: white;
+    }
+
+    .button:active {
+      transform: translate(2px ,0px);
+      box-shadow: 0px 1px 0px rgb(139, 113, 255);
+      padding-bottom: 1px;
+    }
+
+    #canvas-container {
+      width: 100%;
+      max-width: 600px;
+      height: 400px;
+      margin-top: -250px; /* Ajuste para que el canvas esté más cerca del título */
+    }
+
+    p {
+      margin-top: 150px;
+      font-size: 1.2rem;
+    }
+
+    a {
+      display: inline-block;
+      text-decoration: none;
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 18px;
+    }
+
+    /* Ajustes para pantallas pequeñas */
+    @media (max-width: 60px) {
+      h1 {
+        font-size: 1.5rem; /* Reducir tamaño del título en pantallas pequeñas */
+        margin-top: 40px;  /* Ajustar margen en pantallas más pequeñas */
+      }
+
+      #canvas-container {
+        height: 300px; /* Reducir altura del canvas en pantallas más pequeñas */
+        margin-top: -50px; /* Ajustar la posición en pantallas pequeñas */
+      }
+
+      p {
+        font-size: 1rem;
+        margin-top: 10px; /* texto debajo de la imagen*/
+      }
+
+      a {
+        padding: 8px 16px;
+        font-size: 16px;
+      }
+
+      .button {
+        width: 160px;
+        height: 35px;
+        font-size: 0.9rem;
+      }
+
+      .button svg {
+        width: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>¡Mira lo que tenemos para ti! 😎 🌞</h1>
+
+  <!-- Canvas para el modelo 3D -->
+  <div id="canvas-container"></div>
+
+  <p>Mira nuestro nuevo producto.</p>
+
+  <!-- Botón para realizar la compra -->
+  <a href="https://wa.me/928598496?text=¡Hola!%20Quiero%20cotizar%20un%20bidón." class="button">
+    Realiza tu compra
+    <svg class="cartIcon" viewBox="0 0 576 512">
+      <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z"></path>
+    </svg>
+  </a>
+
+  <!-- Three.js Script -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script>
+    // Crear la escena
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    
+    // Crear el renderer con transparencia
+    const renderer = new THREE.WebGLRenderer({ alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000, 0); // Hacer el fondo transparente
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+    // Crear un objeto 3D simple (puedes cargar un modelo 3D real con GLTFLoader)
+    const geometry = new THREE.BoxGeometry();
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
+
+    camera.position.z = 5;
+
+    // Añadir controles para que el usuario pueda rotar el objeto
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true; // Suaviza la interacción
+    controls.dampingFactor = 0.05; // Velocidad del damping
+    controls.enableZoom = false; // Deshabilita el zoom (opcional)
+    controls.enablePan = false; // Deshabilita mover la cámara (opcional)
+    controls.rotateSpeed = 0.5; // Velocidad de rotación
+
+    // Animación
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update(); // Actualiza los controles
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Hacer el canvas responsivo
+    window.addEventListener('resize', () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      renderer.setSize(width, height);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    });
+  </script>
+</body>
+</html>
