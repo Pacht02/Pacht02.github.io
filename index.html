@@ -25,9 +25,9 @@
         <form id="location-form" class="mb-4">
             <input 
                 type="text" 
-                id="address" 
+                id="coordinates" 
                 class="border p-2 w-full mb-2" 
-                placeholder="Dirección o coordenadas (lat, lng)" 
+                placeholder="Latitud, Longitud (ej. 19.432608, -99.133209)" 
                 required>
             <input 
                 type="text" 
@@ -65,6 +65,7 @@
                     lat: position.coords.latitude,
                     lng: position.coords.longitude,
                 };
+                alert(`Tu ubicación actual es: ${userLocation.lat}, ${userLocation.lng}`);
             },
             (error) => {
                 alert("No se pudo obtener tu ubicación. Por favor, habilítala en tu dispositivo.");
@@ -90,20 +91,20 @@
         document.getElementById("location-form").addEventListener("submit", (e) => {
             e.preventDefault();
 
-            const address = document.getElementById("address").value;
+            const coordinates = document.getElementById("coordinates").value;
             const phone = document.getElementById("phone").value;
 
-            // Dividir coordenadas si son ingresadas como "lat, lng"
-            const [lat, lng] = address.split(",").map((item) => parseFloat(item.trim()));
+            // Dividir coordenadas ingresadas (lat, lng)
+            const [lat, lng] = coordinates.split(",").map((item) => parseFloat(item.trim()));
 
             if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-                alert("Por favor, ingresa una dirección válida en formato 'lat, lng'.");
+                alert("Por favor, ingresa coordenadas válidas en formato 'lat, lng'.");
                 return;
             }
 
             // Agregar ubicación a la lista
-            locations.push({ address, phone, lat, lng });
-            document.getElementById("address").value = "";
+            locations.push({ phone, lat, lng });
+            document.getElementById("coordinates").value = "";
             document.getElementById("phone").value = "";
             renderList(locations);
         });
@@ -115,7 +116,7 @@
                 return;
             }
 
-            // Agregar distancia a cada ubicación y ordenar
+            // Calcular distancias y ordenar
             locations.forEach((loc) => {
                 loc.distance = calculateDistance(
                     userLocation.lat,
@@ -134,13 +135,14 @@
             const listContainer = document.getElementById("location-list");
             listContainer.innerHTML = "";
 
-            locations.forEach((loc) => {
+            locations.forEach((loc, index) => {
                 const item = document.createElement("div");
                 item.className = "p-4 border rounded bg-gray-50";
 
                 item.innerHTML = `
+                    <p><strong>#${index + 1}</strong></p>
                     <p><strong>Número:</strong> <a href="tel:${loc.phone}" class="text-blue-500">${loc.phone}</a></p>
-                    <p><strong>Dirección:</strong> ${loc.address}</p>
+                    <p><strong>Coordenadas:</strong> ${loc.lat}, ${loc.lng}</p>
                     <p><strong>Distancia:</strong> ${loc.distance ? loc.distance.toFixed(2) + " km" : "N/A"}</p>
                     <button 
                         class="bg-blue-500 text-white px-4 py-2 rounded mt-2"
