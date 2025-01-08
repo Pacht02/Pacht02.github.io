@@ -55,48 +55,116 @@
 
     <!-- Script de Google Maps con el atributo callback -->
     <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIGXKfC3l8btI1dafKYXEITkTRqAA0xyU&callback=initMap"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIGXKfC3l8btI1dafKYXEITkTRqAA0xyU&libraries=places"
       async
       defer>
     </script>
 
-    <!-- Archivo JavaScript -->
     <script>
-        function initMap() {
-            console.log("Google Maps API cargada correctamente.");
-            // Aquí puedes inicializar cualquier lógica necesaria para la API
+        let userLocation = null;
+        const locations = [];
+
+        // Obtener la ubicación del usuario
+        function getUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        };
+                        console.log("Ubicación del usuario:", userLocation);
+                    },
+                    (error) => {
+                        alert("No se pudo obtener la ubicación. Asegúrate de permitir el acceso a la ubicación.");
+                        console.error(error);
+                    }
+                );
+            } else {
+                alert("Geolocalización no soportada en este navegador.");
+            }
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const form = document.getElementById("location-form");
-            const locationList = document.getElementById("location-list");
-            const calculateRouteBtn = document.getElementById("calculate-route");
-            const locations = [];
+        // Calcular distancias y ordenar ubicaciones
+        function calculateAndSortDistances() {
+            if (!userLocation) {
+                alert("Primero debemos obtener tu ubicación actual.");
+                return;
+            }
 
+            const service = new google.maps.DistanceMatrixService();
+            const origins = [userLocation];
+            const destinations = locations.map(loc => {
+                const [lat, lng] = loc.coordinates.split(",").map(Number);
+                return { lat, lng };
+            });
+
+            service.getDistanceMatrix(
+                {
+                    origins,
+                    destinations,
+                    travelMode: google.maps.TravelMode.DRIVING,
+                    unitSystem: google.maps.UnitSystem.METRIC,
+                },
+                (response, status) => {
+                    if (status !== "OK") {
+                        alert("Error al calcular las distancias: " + status);
+                        return;
+                    }
+
+                    const distances = response.rows[0].elements;
+                    distances.forEach((element, index) => {
+                        locations[index].distance = element.distance.value; // Distancia en metros
+                        locations[index].distanceText = element.distance.text; // Distancia legible
+                    });
+
+                    // Ordenar por distancia
+                    locations.sort((a, b) => a.distance - b.distance);
+
+                    // Mostrar resultados
+                    displayLocations();
+                }
+            );
+        }
+
+        // Mostrar ubicaciones ordenadas
+        function displayLocations() {
+            const locationList = document.getElementById("location-list");
+            locationList.innerHTML = "";
+
+            locations.forEach((loc, index) => {
+                locationList.innerHTML += `
+                    <div class="p-4 bg-gray-200 rounded">
+                        <p><strong>${index + 1}. Coordenadas:</strong> ${loc.coordinates}</p>
+                        <p><strong>Teléfono:</strong> ${loc.phone}</p>
+                        <p><strong>Distancia:</strong> ${loc.distanceText}</p>
+                        <a 
+                            href="https://www.google.com/maps/dir/?api=1&destination=${loc.coordinates}" 
+                            target="_blank" 
+                            class="text-blue-500 underline">
+                            Ver en Google Maps
+                        </a>
+                    </div>`;
+            });
+        }
+
+        // Configurar eventos
+        document.addEventListener("DOMContentLoaded", () => {
+            getUserLocation();
+
+            const form = document.getElementById("location-form");
             form.addEventListener("submit", (event) => {
                 event.preventDefault();
                 const coordinates = document.getElementById("coordinates").value;
                 const phone = document.getElementById("phone").value;
 
-                if (coordinates && phone) {
-                    locations.push({ coordinates, phone });
-                    locationList.innerHTML += `<div class="p-4 bg-gray-200 rounded">
-                        <p><strong>Coordenadas:</strong> ${coordinates}</p>
-                        <p><strong>Teléfono:</strong> ${phone}</p>
-                    </div>`;
-                    form.reset();
-                }
+                locations.push({ coordinates, phone });
+                displayLocations();
+                form.reset();
             });
 
-            calculateRouteBtn.addEventListener("click", () => {
-                if (locations.length < 2) {
-                    alert("Debes agregar al menos dos ubicaciones.");
-                    return;
-                }
-
-                // Aquí puedes implementar la lógica para calcular rutas
-                console.log("Calculando rutas entre las siguientes ubicaciones:", locations);
-            });
+            const calculateRouteBtn = document.getElementById("calculate-route");
+            calculateRouteBtn.addEventListener("click", calculateAndSortDistances);
         });
     </script>
 </body>
