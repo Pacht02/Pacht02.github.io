@@ -19,9 +19,6 @@
             top: 10px;
             right: 10px;
         }
-        .delivered {
-            background-color: rgba(220, 38, 38, 0.5); /* Rojo opaco */
-        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -163,38 +160,20 @@
         );
     }
 
-    function toggleDelivered(event, locIndex) {
-        const locationDiv = document.getElementById(`location-${locIndex}`);
-        const button = event.target;
-
-        if (button.classList.contains("bg-green-500")) {
-            // Cambiar a entregado
-            button.classList.remove("bg-green-500");
-            button.classList.add("bg-red-500");
-            button.textContent = "Entregado";
-            locationDiv.classList.add("delivered");
-        }
-    }
-
     function displayLocations() {
         const locationList = document.getElementById("location-list");
         locationList.innerHTML = "";
 
         locations.forEach((loc, index) => {
             locationList.innerHTML += `
-                <div id="location-${index}" class="p-4 bg-gray-200 rounded">
+                <div class="p-4 bg-gray-200 rounded">
                     <p><strong>${index + 1}. Coordenadas:</strong> ${loc.rawCoordinates}</p>
                     <p><strong>Teléfono:</strong> ${loc.phone}</p>
                     <p><strong>Distancia:</strong> ${loc.distanceText || "Calculando..."}</p>
-                    <button 
-                        class="bg-green-500 text-white px-4 py-2 rounded"
-                        onclick="toggleDelivered(event, ${index})">
-                        ¿Se entregó?
-                    </button>
                     <a 
                         href="https://www.google.com/maps/dir/?api=1&destination=${loc.coordinates.lat},${loc.coordinates.lng}" 
                         target="_blank" 
-                        class="text-blue-500 underline ml-2">
+                        class="text-blue-500 underline">
                         Ver en Google Maps
                     </a>
                 </div>`;
