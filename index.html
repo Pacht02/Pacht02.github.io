@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ordenar Rutas por Distancia</title>
+    <title>Calcular Distancias</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         body {
@@ -19,7 +19,7 @@
 <body class="bg-gray-100">
 
     <div class="container bg-white p-6 rounded shadow">
-        <h1 class="text-2xl font-bold mb-4">Ordenar Ubicaciones por Distancia</h1>
+        <h1 class="text-2xl font-bold mb-4">Calcular Distancias con Google Maps</h1>
 
         <!-- Formulario para agregar ubicaciones -->
         <form id="location-form" class="mb-4">
@@ -46,118 +46,17 @@
         <button 
             id="calculate-route" 
             class="bg-green-500 text-white px-4 py-2 rounded w-full mb-4">
-            Ordenar por Distancia
+            Calcular y Ordenar
         </button>
 
         <!-- Lista de ubicaciones -->
         <div id="location-list" class="space-y-4"></div>
     </div>
 
-    <script>
-        // Variables globales
-        let locations = [];
-        let userLocation = null;
-
-        // Obtiene la ubicación actual del usuario
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                userLocation = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude,
-                };
-                alert(`Tu ubicación actual es: ${userLocation.lat}, ${userLocation.lng}`);
-            },
-            (error) => {
-                alert("No se pudo obtener tu ubicación. Por favor, habilítala en tu dispositivo.");
-            }
-        );
-
-        // Función para calcular la distancia entre dos coordenadas
-        function calculateDistance(lat1, lng1, lat2, lng2) {
-            const R = 6371; // Radio de la Tierra en km
-            const dLat = (lat2 - lat1) * (Math.PI / 180);
-            const dLng = (lng2 - lng1) * (Math.PI / 180);
-            const a =
-                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(lat1 * (Math.PI / 180)) *
-                Math.cos(lat2 * (Math.PI / 180)) *
-                Math.sin(dLng / 2) *
-                Math.sin(dLng / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c; // Retorna la distancia en km
-        }
-
-        // Maneja el envío del formulario para agregar ubicaciones
-        document.getElementById("location-form").addEventListener("submit", (e) => {
-            e.preventDefault();
-
-            const coordinates = document.getElementById("coordinates").value;
-            const phone = document.getElementById("phone").value;
-
-            // Dividir coordenadas ingresadas (lat, lng)
-            const [lat, lng] = coordinates.split(",").map((item) => parseFloat(item.trim()));
-
-            if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-                alert("Por favor, ingresa coordenadas válidas en formato 'lat, lng'.");
-                return;
-            }
-
-            // Agregar ubicación a la lista
-            locations.push({ phone, lat, lng });
-            document.getElementById("coordinates").value = "";
-            document.getElementById("phone").value = "";
-            renderList(locations);
-        });
-
-        // Ordena y calcula distancias
-        document.getElementById("calculate-route").addEventListener("click", () => {
-            if (!userLocation) {
-                alert("No se puede calcular la distancia sin tu ubicación actual.");
-                return;
-            }
-
-            // Calcular distancias y ordenar
-            locations.forEach((loc) => {
-                loc.distance = calculateDistance(
-                    userLocation.lat,
-                    userLocation.lng,
-                    loc.lat,
-                    loc.lng
-                );
-            });
-            locations.sort((a, b) => a.distance - b.distance);
-
-            renderList(locations);
-        });
-
-        // Renderiza la lista de ubicaciones
-        function renderList(locations) {
-            const listContainer = document.getElementById("location-list");
-            listContainer.innerHTML = "";
-
-            locations.forEach((loc, index) => {
-                const item = document.createElement("div");
-                item.className = "p-4 border rounded bg-gray-50";
-
-                item.innerHTML = `
-                    <p><strong>#${index + 1}</strong></p>
-                    <p><strong>Número:</strong> <a href="tel:${loc.phone}" class="text-blue-500">${loc.phone}</a></p>
-                    <p><strong>Coordenadas:</strong> ${loc.lat}, ${loc.lng}</p>
-                    <p><strong>Distancia:</strong> ${loc.distance ? loc.distance.toFixed(2) + " km" : "N/A"}</p>
-                    <button 
-                        class="bg-blue-500 text-white px-4 py-2 rounded mt-2"
-                        onclick="openInMaps(${loc.lat}, ${loc.lng})">
-                        Abrir en Google Maps
-                    </button>
-                `;
-                listContainer.appendChild(item);
-            });
-        }
-
-        // Abre Google Maps con la ubicación
-        function openInMaps(lat, lng) {
-            window.open(`https://www.google.com/maps?q=${lat},${lng}`, "_blank");
-        }
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIGXKfC3l8btI1dafKYXEITkTRqAA0xyU"
+      defer>
     </script>
+    <script src="app.js"></script>
 </body>
 </html>
