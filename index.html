@@ -14,6 +14,19 @@
             margin: auto;
             padding: 20px;
         }
+        .option-color {
+            border-width: 4px;
+        }
+        /* Colores de las opciones */
+        .huaycan { border-color: #FF6347; } /* Tomato */
+        .nana { border-color: #FFD700; } /* Gold */
+        .horacio { border-color: #90EE90; } /* LightGreen */
+        .ate { border-color: #1E90FF; } /* DodgerBlue */
+        .cajamarcquilla { border-color: #FF69B4; } /* HotPink */
+        .carapongo { border-color: #8A2BE2; } /* BlueViolet */
+        .chaclacao { border-color: #FFA500; } /* Orange */
+        .chosica { border-color: #20B2AA; } /* LightSeaGreen */
+        .otros { border-color: #808080; } /* Gray */
     </style>
 </head>
 <body class="bg-gray-100">
@@ -35,6 +48,21 @@
                 class="border p-2 w-full mb-2" 
                 placeholder="Número del cliente" 
                 required>
+            <select 
+                id="location-select" 
+                class="border p-2 w-full mb-2"
+                required>
+                <option value="" selected disabled>Selecciona una ubicación</option>
+                <option value="huaycan" class="huaycan">Huaycán</option>
+                <option value="nana" class="nana">Ñaña</option>
+                <option value="horacio" class="horacio">Horacio</option>
+                <option value="ate" class="ate">Ate</option>
+                <option value="cajamarcquilla" class="cajamarcquilla">Cajamarcquilla</option>
+                <option value="carapongo" class="carapongo">Carapongo</option>
+                <option value="chaclacao" class="chaclacao">Chaclacayo</option>
+                <option value="chosica" class="chosica">Chosica</option>
+                <option value="otros" class="otros">Otros</option>
+            </select>
             <button 
                 type="submit" 
                 class="bg-blue-500 text-white px-4 py-2 rounded">
@@ -131,12 +159,13 @@
 
             locations.forEach((loc, index) => {
                 const div = document.createElement("div");
-                div.className = "p-4 bg-gray-200 rounded";
+                div.className = `p-4 bg-gray-200 rounded option-color ${loc.option}`;
 
                 div.innerHTML = `
                     <p><strong>#${index + 1}</strong></p>
                     <p><strong>Coordenadas:</strong> ${loc.rawCoordinates}</p>
                     <p><strong>Teléfono:</strong> ${loc.phone}</p>
+                    <p><strong>Ubicación:</strong> ${loc.optionText}</p>
                     <p><strong>Distancia:</strong> ${loc.distanceText || "Calculando..."}</p>
                     <button 
                         class="bg-blue-500 text-white px-4 py-2 rounded mt-2"
@@ -164,6 +193,9 @@
 
                 const rawCoordinates = document.getElementById("coordinates").value;
                 const phone = document.getElementById("phone").value;
+                const select = document.getElementById("location-select");
+                const optionValue = select.value;
+                const optionText = select.options[select.selectedIndex].text;
 
                 const [lat, lng] = rawCoordinates.split(",").map(coord => parseFloat(coord.trim()));
 
@@ -175,6 +207,8 @@
                 locations.push({
                     rawCoordinates,
                     phone,
+                    option: optionValue,
+                    optionText,
                     coordinates: { lat, lng },
                     distance: null, // Se calculará después
                     distanceText: null, // Se calculará después
