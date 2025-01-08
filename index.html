@@ -53,12 +53,51 @@
         <div id="location-list" class="space-y-4"></div>
     </div>
 
+    <!-- Script de Google Maps con el atributo callback -->
     <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIGXKfC3l8btI1dafKYXEITkTRqAA0xyU"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIGXKfC3l8btI1dafKYXEITkTRqAA0xyU&callback=initMap"
       async
       defer>
     </script>
 
-    <script src="app.js"></script>
+    <!-- Archivo JavaScript -->
+    <script>
+        function initMap() {
+            console.log("Google Maps API cargada correctamente.");
+            // Aquí puedes inicializar cualquier lógica necesaria para la API
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.getElementById("location-form");
+            const locationList = document.getElementById("location-list");
+            const calculateRouteBtn = document.getElementById("calculate-route");
+            const locations = [];
+
+            form.addEventListener("submit", (event) => {
+                event.preventDefault();
+                const coordinates = document.getElementById("coordinates").value;
+                const phone = document.getElementById("phone").value;
+
+                if (coordinates && phone) {
+                    locations.push({ coordinates, phone });
+                    locationList.innerHTML += `<div class="p-4 bg-gray-200 rounded">
+                        <p><strong>Coordenadas:</strong> ${coordinates}</p>
+                        <p><strong>Teléfono:</strong> ${phone}</p>
+                    </div>`;
+                    form.reset();
+                }
+            });
+
+            calculateRouteBtn.addEventListener("click", () => {
+                if (locations.length < 2) {
+                    alert("Debes agregar al menos dos ubicaciones.");
+                    return;
+                }
+
+                // Aquí puedes implementar la lógica para calcular rutas
+                console.log("Calculando rutas entre las siguientes ubicaciones:", locations);
+            });
+        });
+    </script>
 </body>
 </html>
