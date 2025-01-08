@@ -83,7 +83,6 @@
     function parseCoordinates(coordinates) {
         const [latDms, lngDms] = coordinates.split(",");
         const lat = dmsToDecimal(latDms.trim());
-        const lng = dmsToDecimal(lngDms.trim());
         return lat !== null && lng !== null ? { lat, lng } : null;
     }
 
