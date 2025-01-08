@@ -61,111 +61,138 @@
     </script>
 
     <script>
-        let userLocation = null;
-        const locations = [];
-
-        // Obtener la ubicación del usuario
-        function getUserLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        userLocation = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude,
-                        };
-                        console.log("Ubicación del usuario:", userLocation);
-                    },
-                    (error) => {
-                        alert("No se pudo obtener la ubicación. Asegúrate de permitir el acceso a la ubicación.");
-                        console.error(error);
-                    }
-                );
-            } else {
-                alert("Geolocalización no soportada en este navegador.");
-            }
+    function dmsToDecimal(dms) {
+        // Convierte coordenadas en formato DMS (grados, minutos, segundos) a decimal
+        const regex = /(\d+)[°º]?\s*(\d+)?['′]?\s*(\d+\.?\d*)?["″]?\s*([NSEW])/i;
+        const match = dms.match(regex);
+        if (!match) {
+            alert("Formato de coordenadas incorrecto. Usa DMS o formato decimal.");
+            return null;
         }
 
-        // Calcular distancias y ordenar ubicaciones
-        function calculateAndSortDistances() {
-            if (!userLocation) {
-                alert("Primero debemos obtener tu ubicación actual.");
-                return;
-            }
+        let [_, degrees, minutes = 0, seconds = 0, direction] = match;
+        let decimal = parseFloat(degrees) + parseFloat(minutes) / 60 + parseFloat(seconds) / 3600;
 
-            const service = new google.maps.DistanceMatrixService();
-            const origins = [userLocation];
-            const destinations = locations.map(loc => {
-                const [lat, lng] = loc.coordinates.split(",").map(Number);
-                return { lat, lng };
-            });
+        if (["S", "W"].includes(direction.toUpperCase())) {
+            decimal = -decimal;
+        }
 
-            service.getDistanceMatrix(
-                {
-                    origins,
-                    destinations,
-                    travelMode: google.maps.TravelMode.DRIVING,
-                    unitSystem: google.maps.UnitSystem.METRIC,
+        return decimal;
+    }
+
+    function parseCoordinates(coordinates) {
+        const [latDms, lngDms] = coordinates.split(",");
+        const lat = dmsToDecimal(latDms.trim());
+        const lng = dmsToDecimal(lngDms.trim());
+        return lat !== null && lng !== null ? { lat, lng } : null;
+    }
+
+    let userLocation = null;
+    const locations = [];
+
+    function getUserLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                    };
+                    console.log("Ubicación del usuario:", userLocation);
                 },
-                (response, status) => {
-                    if (status !== "OK") {
-                        alert("Error al calcular las distancias: " + status);
-                        return;
-                    }
-
-                    const distances = response.rows[0].elements;
-                    distances.forEach((element, index) => {
-                        locations[index].distance = element.distance.value; // Distancia en metros
-                        locations[index].distanceText = element.distance.text; // Distancia legible
-                    });
-
-                    // Ordenar por distancia
-                    locations.sort((a, b) => a.distance - b.distance);
-
-                    // Mostrar resultados
-                    displayLocations();
+                (error) => {
+                    alert("No se pudo obtener la ubicación. Asegúrate de permitir el acceso a la ubicación.");
+                    console.error(error);
                 }
             );
+        } else {
+            alert("Geolocalización no soportada en este navegador.");
+        }
+    }
+
+    function calculateAndSortDistances() {
+        if (!userLocation) {
+            alert("Primero debemos obtener tu ubicación actual.");
+            return;
         }
 
-        // Mostrar ubicaciones ordenadas
-        function displayLocations() {
-            const locationList = document.getElementById("location-list");
-            locationList.innerHTML = "";
+        const service = new google.maps.DistanceMatrixService();
+        const origins = [userLocation];
+        const destinations = locations.map(loc => loc.coordinates);
 
-            locations.forEach((loc, index) => {
-                locationList.innerHTML += `
-                    <div class="p-4 bg-gray-200 rounded">
-                        <p><strong>${index + 1}. Coordenadas:</strong> ${loc.coordinates}</p>
-                        <p><strong>Teléfono:</strong> ${loc.phone}</p>
-                        <p><strong>Distancia:</strong> ${loc.distanceText}</p>
-                        <a 
-                            href="https://www.google.com/maps/dir/?api=1&destination=${loc.coordinates}" 
-                            target="_blank" 
-                            class="text-blue-500 underline">
-                            Ver en Google Maps
-                        </a>
-                    </div>`;
-            });
-        }
+        service.getDistanceMatrix(
+            {
+                origins,
+                destinations,
+                travelMode: google.maps.TravelMode.DRIVING,
+                unitSystem: google.maps.UnitSystem.METRIC,
+            },
+            (response, status) => {
+                if (status !== "OK") {
+                    alert("Error al calcular las distancias: " + status);
+                    return;
+                }
 
-        // Configurar eventos
-        document.addEventListener("DOMContentLoaded", () => {
-            getUserLocation();
+                const distances = response.rows[0].elements;
+                distances.forEach((element, index) => {
+                    locations[index].distance = element.distance.value; // Distancia en metros
+                    locations[index].distanceText = element.distance.text; // Distancia legible
+                });
 
-            const form = document.getElementById("location-form");
-            form.addEventListener("submit", (event) => {
-                event.preventDefault();
-                const coordinates = document.getElementById("coordinates").value;
-                const phone = document.getElementById("phone").value;
+                // Ordenar por distancia
+                locations.sort((a, b) => a.distance - b.distance);
 
-                locations.push({ coordinates, phone });
+                // Mostrar resultados
+                displayLocations();
+            }
+        );
+    }
+
+    function displayLocations() {
+        const locationList = document.getElementById("location-list");
+        locationList.innerHTML = "";
+
+        locations.forEach((loc, index) => {
+            locationList.innerHTML += `
+                <div class="p-4 bg-gray-200 rounded">
+                    <p><strong>${index + 1}. Coordenadas:</strong> ${loc.rawCoordinates}</p>
+                    <p><strong>Teléfono:</strong> ${loc.phone}</p>
+                    <p><strong>Distancia:</strong> ${loc.distanceText}</p>
+                    <a 
+                        href="https://www.google.com/maps/dir/?api=1&destination=${loc.coordinates.lat},${loc.coordinates.lng}" 
+                        target="_blank" 
+                        class="text-blue-500 underline">
+                        Ver en Google Maps
+                    </a>
+                </div>`;
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        getUserLocation();
+
+        const form = document.getElementById("location-form");
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const rawCoordinates = document.getElementById("coordinates").value;
+            const phone = document.getElementById("phone").value;
+
+            const parsedCoordinates = parseCoordinates(rawCoordinates);
+            if (parsedCoordinates) {
+                locations.push({
+                    rawCoordinates,
+                    phone,
+                    coordinates: parsedCoordinates,
+                });
                 displayLocations();
                 form.reset();
-            });
-
-            const calculateRouteBtn = document.getElementById("calculate-route");
-            calculateRouteBtn.addEventListener("click", calculateAndSortDistances);
+            }
         });
-    </script>
+
+        const calculateRouteBtn = document.getElementById("calculate-route");
+        calculateRouteBtn.addEventListener("click", calculateAndSortDistances);
+    });
+</script>
+
 </body>
 </html>
