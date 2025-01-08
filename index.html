@@ -61,41 +61,12 @@
     </script>
 
     <script>
-    function detectCoordinateFormat(coordinate) {
-        // Detecta si es DMS, Decimal o una cadena directa
-        const dmsRegex = /(\d+)[°º]?\s*(\d+)?['′]?\s*(\d+\.?\d*)?["″]?\s*([NSEW])/i;
-        const decimalRegex = /^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/;
-
-        if (coordinate.match(dmsRegex)) {
-            return "DMS";
-        } else if (coordinate.match(decimalRegex)) {
-            return "Decimal";
-        }
-        return "Unknown";
-    }
-
-    function parseCoordinates(coordinates) {
-        // Detecta y convierte las coordenadas según el formato
-        const format = detectCoordinateFormat(coordinates);
-        if (format === "DMS") {
-            const [latDms, lngDms] = coordinates.split(",");
-            const lat = dmsToDecimal(latDms.trim());
-            const lng = dmsToDecimal(lngDms.trim());
-            return lat !== null && lng !== null ? { lat, lng } : null;
-        } else if (format === "Decimal") {
-            const [lat, lng] = coordinates.split(",").map(coord => parseFloat(coord.trim()));
-            return { lat, lng };
-        } else {
-            alert("Formato de coordenadas no reconocido. Usa DMS o Decimal.");
-            return null;
-        }
-    }
-
     function dmsToDecimal(dms) {
-        // Convierte coordenadas en formato DMS a Decimal
+        // Convierte coordenadas en formato DMS (grados, minutos, segundos) a decimal
         const regex = /(\d+)[°º]?\s*(\d+)?['′]?\s*(\d+\.?\d*)?["″]?\s*([NSEW])/i;
         const match = dms.match(regex);
         if (!match) {
+            alert("Formato de coordenadas incorrecto. Usa DMS o formato decimal.");
             return null;
         }
 
@@ -107,6 +78,13 @@
         }
 
         return decimal;
+    }
+
+    function parseCoordinates(coordinates) {
+        const [latDms, lngDms] = coordinates.split(",");
+        const lat = dmsToDecimal(latDms.trim());
+        const lng = dmsToDecimal(lngDms.trim());
+        return lat !== null && lng !== null ? { lat, lng } : null;
     }
 
     let userLocation = null;
@@ -215,6 +193,7 @@
         calculateRouteBtn.addEventListener("click", calculateAndSortDistances);
     });
 </script>
+
 
 </body>
 </html>
