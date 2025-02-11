@@ -67,7 +67,9 @@
     <div class="carta" onclick="abrirCarta()">📩 Toca para abrir</div>
     
     <div class="contenido" id="contenido">
-        <p>¿Quieres ser mi San Valentín? 💖</p>
+        <p>¿Quieres ser mi San Valentín? 💖
+        Eres la persona más especial en mi vida y cada momento contigo es mágico. 🌹✨
+        No puedo imaginar este día sin ti. 💕</p>
         <div class="botones">
             <button class="si" onclick="aceptar()">Sí</button>
             <button class="no" id="no" onmouseover="moverBoton()">No</button>
@@ -81,8 +83,8 @@
         }
 
         function aceptar() {
-            let mensaje = encodeURIComponent("Acepto ser tu San Valentín, lo siento por ser una loca");
-            window.location.href = `https://wa.me/?text=${mensaje}`;
+            let mensaje = encodeURIComponent("Acepto ser tu San Valentín, lo siento por ser una loca. Eres lo mejor que me ha pasado y estoy feliz de compartir este día contigo. 💖✨");
+            window.location.href = `https://wa.me/51914024693?text=${mensaje}`;
         }
 
         function moverBoton() {
