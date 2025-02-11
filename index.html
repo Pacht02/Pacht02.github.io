@@ -1,226 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calcular Distancias</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>Carta de San Valentín</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: pink;
             font-family: Arial, sans-serif;
         }
-        .container {
-            max-width: 600px;
-            margin: auto;
+        .carta {
+            width: 200px;
+            height: 150px;
+            background: red;
+            position: relative;
+            cursor: pointer;
+            text-align: center;
+            color: white;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+        }
+        .contenido {
+            display: none;
+            text-align: center;
+            background: white;
             padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
         }
-        .option-color {
-            border-width: 4px;
+        .botones {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-around;
         }
-        /* Colores de las opciones */
-        .huaycan { border-color: #FF6347; } /* Tomato */
-        .nana { border-color: #FFD700; } /* Gold */
-        .horacio { border-color: #90EE90; } /* LightGreen */
-        .ate { border-color: #1E90FF; } /* DodgerBlue */
-        .cajamarcquilla { border-color: #FF69B4; } /* HotPink */
-        .carapongo { border-color: #8A2BE2; } /* BlueViolet */
-        .chaclacao { border-color: #FFA500; } /* Orange */
-        .chosica { border-color: #20B2AA; } /* LightSeaGreen */
-        .otros { border-color: #808080; } /* Gray */
+        button {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .si {
+            background: green;
+            color: white;
+        }
+        .no {
+            background: red;
+            color: white;
+            position: absolute;
+        }
     </style>
 </head>
-<body class="bg-gray-100">
-
-    <div class="container bg-white p-6 rounded shadow">
-        <h1 class="text-2xl font-bold mb-4">Calcular Distancias con Google Maps</h1>
-
-        <!-- Formulario para agregar ubicaciones -->
-        <form id="location-form" class="mb-4">
-            <input 
-                type="text" 
-                id="coordinates" 
-                class="border p-2 w-full mb-2" 
-                placeholder="Latitud, Longitud (ej. 19.432608, -99.133209)" 
-                required>
-            <input 
-                type="text" 
-                id="phone" 
-                class="border p-2 w-full mb-2" 
-                placeholder="Número del cliente" 
-                required>
-            <select 
-                id="location-select" 
-                class="border p-2 w-full mb-2"
-                required>
-                <option value="" selected disabled>Selecciona una ubicación</option>
-                <option value="huaycan" class="huaycan">Huaycán</option>
-                <option value="nana" class="nana">Ñaña</option>
-                <option value="horacio" class="horacio">Horacio</option>
-                <option value="ate" class="ate">Ate</option>
-                <option value="cajamarcquilla" class="cajamarcquilla">Cajamarcquilla</option>
-                <option value="carapongo" class="carapongo">Carapongo</option>
-                <option value="chaclacao" class="chaclacao">Chaclacayo</option>
-                <option value="chosica" class="chosica">Chosica</option>
-                <option value="otros" class="otros">Otros</option>
-            </select>
-            <button 
-                type="submit" 
-                class="bg-blue-500 text-white px-4 py-2 rounded">
-                Agregar Ubicación
-            </button>
-        </form>
-
-        <!-- Botón para calcular rutas -->
-        <button 
-            id="calculate-route" 
-            class="bg-green-500 text-white px-4 py-2 rounded w-full mb-4">
-            Calcular y Ordenar
-        </button>
-
-        <!-- Lista de ubicaciones -->
-        <div id="location-list" class="space-y-4"></div>
+<body>
+    <div class="carta" onclick="abrirCarta()">📩 Toca para abrir</div>
+    
+    <div class="contenido" id="contenido">
+        <p>¿Quieres ser mi San Valentín? 💖</p>
+        <div class="botones">
+            <button class="si" onclick="aceptar()">Sí</button>
+            <button class="no" id="no" onmouseover="moverBoton()">No</button>
+        </div>
     </div>
 
-    <!-- Script de Google Maps -->
-    <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIGXKfC3l8btI1dafKYXEITkTRqAA0xyU&libraries=places"
-      async
-      defer>
-    </script>
-
     <script>
-        let userLocation = null;
-        const locations = [];
-
-        // Obtén la ubicación del usuario
-        function getUserLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        userLocation = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude,
-                        };
-                        console.log("Ubicación del usuario:", userLocation);
-                    },
-                    (error) => {
-                        alert("No se pudo obtener la ubicación del usuario. Activa la geolocalización.");
-                        console.error(error);
-                    }
-                );
-            } else {
-                alert("Tu navegador no soporta geolocalización.");
-            }
+        function abrirCarta() {
+            document.querySelector('.carta').style.display = 'none';
+            document.getElementById('contenido').style.display = 'block';
         }
 
-        // Calcula distancias y ordena las ubicaciones
-        function calculateAndSortDistances() {
-            if (!userLocation) {
-                alert("Primero debes permitir acceso a tu ubicación.");
-                return;
-            }
-
-            const service = new google.maps.DistanceMatrixService();
-            const origins = [userLocation];
-            const destinations = locations.map(loc => loc.coordinates);
-
-            service.getDistanceMatrix(
-                {
-                    origins,
-                    destinations,
-                    travelMode: google.maps.TravelMode.DRIVING,
-                    unitSystem: google.maps.UnitSystem.METRIC,
-                },
-                (response, status) => {
-                    if (status !== "OK") {
-                        alert("Error al calcular distancias: " + status);
-                        return;
-                    }
-
-                    const distances = response.rows[0].elements;
-                    distances.forEach((element, index) => {
-                        locations[index].distance = element.distance.value; // Distancia en metros
-                        locations[index].distanceText = element.distance.text; // Distancia legible
-                    });
-
-                    // Ordenar ubicaciones por distancia
-                    locations.sort((a, b) => a.distance - b.distance);
-
-                    // Actualizar la lista en el DOM
-                    displayLocations();
-                }
-            );
+        function aceptar() {
+            let mensaje = encodeURIComponent("Acepto ser tu San Valentín, lo siento por ser una loca");
+            window.location.href = `https://wa.me/?text=${mensaje}`;
         }
 
-        // Muestra las ubicaciones en la lista
-        function displayLocations() {
-            const locationList = document.getElementById("location-list");
-            locationList.innerHTML = "";
-
-            locations.forEach((loc, index) => {
-                const div = document.createElement("div");
-                div.className = `p-4 bg-gray-200 rounded option-color ${loc.option}`;
-
-                div.innerHTML = `
-                    <p><strong>#${index + 1}</strong></p>
-                    <p><strong>Coordenadas:</strong> ${loc.rawCoordinates}</p>
-                    <p><strong>Teléfono:</strong> ${loc.phone}</p>
-                    <p><strong>Ubicación:</strong> ${loc.optionText}</p>
-                    <p><strong>Distancia:</strong> ${loc.distanceText || "Calculando..."}</p>
-                    <button 
-                        class="bg-blue-500 text-white px-4 py-2 rounded mt-2"
-                        onclick="openInGoogleMaps(${loc.coordinates.lat}, ${loc.coordinates.lng})">
-                        Ver en Google Maps
-                    </button>
-                `;
-
-                locationList.appendChild(div);
-            });
+        function moverBoton() {
+            let botonNo = document.getElementById('no');
+            let x = Math.random() * (window.innerWidth - 100);
+            let y = Math.random() * (window.innerHeight - 50);
+            botonNo.style.left = `${x}px`;
+            botonNo.style.top = `${y}px`;
         }
-
-        // Abre Google Maps con la ubicación seleccionada
-        function openInGoogleMaps(lat, lng) {
-            window.open(`https://www.google.com/maps?q=${lat},${lng}`, "_blank");
-        }
-
-        // Maneja el envío del formulario
-        document.addEventListener("DOMContentLoaded", () => {
-            getUserLocation();
-
-            const form = document.getElementById("location-form");
-            form.addEventListener("submit", (event) => {
-                event.preventDefault();
-
-                const rawCoordinates = document.getElementById("coordinates").value;
-                const phone = document.getElementById("phone").value;
-                const select = document.getElementById("location-select");
-                const optionValue = select.value;
-                const optionText = select.options[select.selectedIndex].text;
-
-                const [lat, lng] = rawCoordinates.split(",").map(coord => parseFloat(coord.trim()));
-
-                if (isNaN(lat) || isNaN(lng)) {
-                    alert("Formato de coordenadas inválido. Usa el formato 'latitud, longitud'.");
-                    return;
-                }
-
-                locations.push({
-                    rawCoordinates,
-                    phone,
-                    option: optionValue,
-                    optionText,
-                    coordinates: { lat, lng },
-                    distance: null, // Se calculará después
-                    distanceText: null, // Se calculará después
-                });
-
-                form.reset();
-                displayLocations();
-            });
-
-            const calculateRouteBtn = document.getElementById("calculate-route");
-            calculateRouteBtn.addEventListener("click", calculateAndSortDistances);
-        });
     </script>
 </body>
 </html>
